@@ -1,146 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Secure Relay</title>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
-<style>
+    <meta charset="UTF-8">
+    <title>Secure Relay | MI6 Internal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            background-color: #0c0f12;
+            font-family: 'Source Code Pro', monospace;
+            color: #7cff9b;
+            overflow: hidden;
+            animation: flicker 4s infinite;
+        }
 
-body {
-  margin: 0;
-  background-color: #0c0f12;
-  font-family: 'Source Code Pro', monospace;
-  color: #7cff9b;
-  overflow: hidden;
-  animation: flicker 4s infinite;
-}
+        @keyframes flicker {
+            0% { opacity: 0.99; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
 
-@keyframes flicker {
-  0% { opacity: 0.99; }
-  50% { opacity: 1; }
-  100% { opacity: 0.98; }
-}
+        #terminal {
+            padding: 30px;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
 
-#terminal {
-  padding: 30px;
-  height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-}
+        #output {
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
 
-#output {
-  flex: 1;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
+        /* Crucial fix for multi-line text alignment */
+        .line-block {
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
 
-.input-line {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-}
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
 
-.prompt {
-  margin-right: 8px;
-  color: #5cff7a;
-}
+        .prompt {
+            margin-right: 8px;
+            color: #5cff7a;
+        }
 
-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #7cff9b;
-  font-family: inherit;
-  font-size: 16px;
-}
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #7cff9b;
+            font-family: inherit;
+            font-size: 16px;
+        }
 
-img {
-  margin-top: 15px;
-  max-width: 100%;
-  border: 1px solid #1e2a22;
-}
+        img {
+            margin-top: 15px;
+            max-width: 100%;
+            border: 1px solid #1e2a22;
+            display: block;
+        }
 
-.scanlines {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    rgba(0,0,0,0.12) 0px,
-    rgba(0,0,0,0.12) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  mix-blend-mode: overlay;
-  opacity: 0.25;
-}
-
-.flash {
-  color: #b3ffcb;
-}
-
-</style>
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                rgba(0,0,0,0.12) 0px,
+                rgba(0,0,0,0.12) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            mix-blend-mode: overlay;
+            opacity: 0.25;
+        }
+    </style>
 </head>
 <body>
 
 <div id="terminal">
-  <div id="output"></div>
-
-  <div class="input-line">
-    <div class="prompt">></div>
-    <input type="text" id="userInput" autofocus />
-  </div>
+    <div id="output"></div>
+    <div class="input-line">
+        <div class="prompt">></div>
+        <input type="text" id="userInput" autofocus autocomplete="off" />
+    </div>
 </div>
 
 <div class="scanlines"></div>
 
 <script>
+    const output = document.getElementById("output");
+    const input = document.getElementById("userInput");
 
-const output = document.getElementById("output");
-const input = document.getElementById("userInput");
+    // TYPEWRITER EFFECT
+    function typeText(text, speed = 18, callback = null) {
+        let i = 0;
+        const line = document.createElement("div");
+        line.className = "line-block";
+        output.appendChild(line);
 
-
-// TYPEWRITER EFFECT
-function typeText(text, speed = 18, callback = null) {
-  let i = 0;
-  const line = document.createElement("div");
-  output.appendChild(line);
-
-  function typing() {
-    if (i < text.length) {
-      line.innerHTML += text.charAt(i);
-      i++;
-      output.scrollTop = output.scrollHeight;
-      setTimeout(typing, speed);
-    } else {
-      line.innerHTML += "<br><br>";
-      if (callback) callback();
+        function typing() {
+            if (i < text.length) {
+                line.textContent += text.charAt(i);
+                i++;
+                output.scrollTop = output.scrollHeight;
+                setTimeout(typing, speed);
+            } else {
+                if (callback) callback();
+            }
+        }
+        typing();
     }
-  }
 
-  typing();
-}
+    // IMAGE PRINT
+    function printImage(url) {
+        const img = document.createElement("img");
+        img.src = url;
+        output.appendChild(img);
+        output.scrollTop = output.scrollHeight;
+    }
 
-
-// IMAGE PRINT
-function printImage(url) {
-  const img = document.createElement("img");
-  img.src = url;
-  output.appendChild(img);
-  output.appendChild(document.createElement("br"));
-  output.appendChild(document.createElement("br"));
-  output.scrollTop = output.scrollHeight;
-}
-
-
-// INITIAL BOOT SEQUENCE
-setTimeout(() => {
-  typeText(`ENCRYPTED RELAY ACTIVE
+    // INITIAL BOOT SEQUENCE
+    setTimeout(() => {
+        typeText(`ENCRYPTED RELAY ACTIVE
 DEVICE SIGNATURE: ROOK-7X
 TRACE STATUS: PASSIVE
 
@@ -151,76 +143,61 @@ You went dark after Warsaw.
 I need to confirm it's you.
 
 How do I take it?`);
-}, 600);
+    }, 600);
 
+    // SEND ON ENTER
+    input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            const message = input.value.trim();
+            if (!message) return;
 
-// SEND ON ENTER
-input.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    const message = input.value.trim();
-    if (!message) return;
-
-    typeText("> " + message, 10);
-    sendMessage(message);
-    input.value = "";
-  }
-});
-
-
-// CONNECT TO ZAPIER
-function sendMessage(message) {
-
-  // Fake network latency
-  setTimeout(() => {
-
-    fetch("https://hook.eu1.make.com/vdam7cnesfwrxy7a7xccwdx93rdvaqnn", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message })
-    })
-    .then(res => res.json())
-    .then(data => {
-
-      // If authentication success text includes keyword trigger
-      if (data.message && data.message.includes("[AUTH HASH VERIFIED]")) {
-
-        typeText("[AUTH HASH VERIFIED]", 15, () => {
-
-          setTimeout(() => {
-            typeText("Channel stabilised.", 20, () => {
-
-              setTimeout(() => {
-                if (data.message) typeText(data.message.replace("[AUTH HASH VERIFIED]", ""), 18);
-
-                if (data.image_url) {
-                  setTimeout(() => {
-                    typeText("Transmitting visual key...", 18, () => {
-                      setTimeout(() => {
-                        printImage(data.image_url);
-                      }, 1200);
-                    });
-                  }, 1000);
-                }
-
-              }, 800);
-            });
-          }, 600);
-
-        });
-
-      } else {
-        if (data.message) typeText(data.message, 18);
-      }
-
-    })
-    .catch(() => {
-      typeText("Signal disruption detected.", 18);
+            typeText("> " + message, 10);
+            sendMessage(message);
+            input.value = "";
+        }
     });
 
-  }, 1200); // FAKE LATENCY
-
-}
-
+    // CONNECT TO MAKE.COM
+    function sendMessage(message) {
+        // Fake network latency
+        setTimeout(() => {
+            fetch("https://hook.eu1.make.com/2taqxrni49hf2xxf2c35q73eb2xb9aaf", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message && data.message.includes("[AUTH HASH VERIFIED]")) {
+                    typeText("[AUTH HASH VERIFIED]", 15, () => {
+                        setTimeout(() => {
+                            typeText("Channel stabilised.", 20, () => {
+                                setTimeout(() => {
+                                    if (data.message) {
+                                        typeText(data.message.replace("[AUTH HASH VERIFIED]", "").trim(), 18);
+                                    }
+                                    if (data.image_url) {
+                                        setTimeout(() => {
+                                            typeText("Transmitting visual key...", 18, () => {
+                                                setTimeout(() => {
+                                                    printImage(data.image_url);
+                                                }, 1200);
+                                            });
+                                        }, 1000);
+                                    }
+                                }, 800);
+                            });
+                        }, 600);
+                    });
+                } else {
+                    if (data.message) typeText(data.message, 18);
+                }
+            })
+            .catch(() => {
+                typeText("Signal disruption detected. Check terminal uplink.", 18);
+            });
+        }, 1200); 
+    }
 </script>
 
 </body>
